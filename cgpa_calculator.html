@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>GradeLedger — SGPA & CGPA Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700;9..144,900&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <header>
+      <div class="logo">
+        <div class="mark">G</div>
+        <div>
+          <h1>GradeLedger</h1>
+          <p>SGPA &amp; CGPA Calculator</p>
+        </div>
+      </div>
+      <div class="toggle-wrap">
+        Light
+        <label class="toggle">
+          <input type="checkbox" id="darkToggle" onchange="toggleDark()" />
+          <span class="slider"></span>
+        </label>
+        Dark
+      </div>
+    </header>
+
+    <div class="tabs">
+      <button class="tab active" data-pane="sgpa" onclick="switchTab('sgpa',this)">SGPA</button>
+      <button class="tab" data-pane="cgpa" onclick="switchTab('cgpa',this)">CGPA</button>
+      <button class="tab" data-pane="table" onclick="switchTab('table',this)">Grade Table</button>
+    </div>
+
+    <!-- SGPA PANE -->
+    <div class="pane active" id="pane-sgpa">
+      <div class="formula">
+        <strong>SGPA Formula:</strong>
+        <code>SGPA = Σ(Grade × Credits) / ΣCredits</code>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Subjects</div>
+        <div class="row-header sgpa-header">
+          <div>Subject Name</div>
+          <div>Grade</div>
+          <div>Credits</div>
+          <div></div>
+        </div>
+        <div id="subjectList"></div>
+        <div class="row-actions">
+          <button class="btn btn-primary" onclick="addSubject()">+ Add Subject</button>
+          <button class="btn btn-outline" onclick="resetSGPA()">Reset</button>
+        </div>
+      </div>
+
+      <div id="sgpaResult" style="display:none">
+        <div class="result-box">
+          <div class="result-label">Your SGPA</div>
+          <div class="result-value" id="sgpaValue">0.00</div>
+          <div class="result-sub" id="sgpaGrade"></div>
+          <div class="result-grid">
+            <div class="result-mini">
+              <div class="lbl">Total Credits</div>
+              <div class="val" id="sgpaTotalCredits">0</div>
+            </div>
+            <div class="result-mini">
+              <div class="lbl">Percentage (~)</div>
+              <div class="val" id="sgpaPct">0%</div>
+            </div>
+          </div>
+        </div>
+        <details class="breakdown">
+          <summary>Step-wise Breakdown</summary>
+          <table class="breakdown-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Grade</th>
+                <th>Credits</th>
+                <th>Points</th>
+              </tr>
+            </thead>
+            <tbody id="sgpaBreakdownBody"></tbody>
+            <tfoot id="sgpaBreakdownFoot"></tfoot>
+          </table>
+        </details>
+      </div>
+    </div>
+
+    <!-- CGPA PANE -->
+    <div class="pane" id="pane-cgpa">
+      <div class="formula">
+        <strong>CGPA Formula:</strong>
+        <code>CGPA = Σ(SGPA × Credits) / ΣCredits</code>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Semesters</div>
+        <p style="font-size:.78rem;color:var(--ink-soft);margin:-10px 0 14px">
+          🕓 Saved automatically in this browser — your Sem 1–8 SGPA stays here next time you open this page.
+        </p>
+        <div class="row-header cgpa-header">
+          <div>Sem</div>
+          <div>SGPA</div>
+          <div>Credits</div>
+          <div></div>
+        </div>
+        <div id="semList"></div>
+        <div class="row-actions">
+          <button class="btn btn-primary" onclick="addSem()">+ Add Semester</button>
+          <button class="btn btn-outline" onclick="resetCGPA()">Reset to Sem 1–8</button>
+          <button class="btn btn-outline" onclick="clearHistory()">Clear Saved History</button>
+        </div>
+      </div>
+
+      <div id="cgpaResult" style="display:none">
+        <div class="result-box">
+          <div class="result-label">Your CGPA</div>
+          <div class="result-value" id="cgpaValue">0.00</div>
+          <div class="result-sub" id="cgpaGrade"></div>
+          <div class="result-grid">
+            <div class="result-mini">
+              <div class="lbl">Total Credits</div>
+              <div class="val" id="cgpaTotalCredits">0</div>
+            </div>
+            <div class="result-mini">
+              <div class="lbl">Percentage (~)</div>
+              <div class="val" id="cgpaPct">0%</div>
+            </div>
+          </div>
+        </div>
+        <details class="breakdown">
+          <summary>Semester-wise Breakdown</summary>
+          <table class="breakdown-table">
+            <thead>
+              <tr>
+                <th>Semester</th>
+                <th>SGPA</th>
+                <th>Credits</th>
+                <th>Weighted</th>
+              </tr>
+            </thead>
+            <tbody id="cgpaBreakdownBody"></tbody>
+            <tfoot id="cgpaBreakdownFoot"></tfoot>
+          </table>
+        </details>
+      </div>
+    </div>
+
+    <!-- GRADE TABLE PANE -->
+    <div class="pane" id="pane-table">
+      <div class="card">
+        <div class="card-title">Grade &amp; Point Reference</div>
+        <div class="grade-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Marks Range</th>
+                <th>Grade</th>
+                <th>Grade Points</th>
+                <th>Performance</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>90 – 100</td>
+                <td><strong>O</strong></td>
+                <td>10</td>
+                <td>Outstanding</td>
+              </tr>
+              <tr>
+                <td>80 – 89</td>
+                <td><strong>A+</strong></td>
+                <td>9</td>
+                <td>Excellent</td>
+              </tr>
+              <tr>
+                <td>70 – 79</td>
+                <td><strong>A</strong></td>
+                <td>8</td>
+                <td>Very Good</td>
+              </tr>
+              <tr>
+                <td>60 – 69</td>
+                <td><strong>B+</strong></td>
+                <td>7</td>
+                <td>Good</td>
+              </tr>
+              <tr>
+                <td>50 – 59</td>
+                <td><strong>B</strong></td>
+                <td>6</td>
+                <td>Average</td>
+              </tr>
+              <tr>
+                <td>40 – 49</td>
+                <td><strong>C</strong></td>
+                <td>5</td>
+                <td>Pass</td>
+              </tr>
+              <tr>
+                <td>&lt; 40</td>
+                <td><strong>F</strong></td>
+                <td>0</td>
+                <td>Fail</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="divider"></div>
+        <div class="card-title">CGPA to Percentage Conversion</div>
+        <div style="background:var(--bg-alt);border-radius:10px;padding:14px 16px;font-size:.9rem;line-height:1.8">
+          <div><strong>Formula:</strong> <code
+              style="background:var(--accent-soft);padding:2px 8px;border-radius:5px;color:var(--accent-h)">Percentage = CGPA × 9.5</code>
+          </div>
+          <div style="margin-top:6px;color:var(--ink-soft);font-size:.8rem">Example: CGPA 8.5 → 8.5 × 9.5 =
+            <strong>80.75%</strong></div>
+          <div class="divider"></div>
+          <label style="font-size:.83rem;font-weight:600;color:var(--ink-soft);display:block;margin-bottom:6px">Quick
+            Converter</label>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <input type="number" id="cgpaConv" min="0" max="10" step="0.01" placeholder="Enter CGPA (0–10)"
+              style="max-width:200px" oninput="convertCGPA()" />
+            <div id="convResult" style="font-size:1rem;font-weight:700;color:var(--accent)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>

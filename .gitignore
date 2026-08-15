@@ -1,0 +1,13 @@
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+
+# Local data / backups
+*.json
+*.bak
+
